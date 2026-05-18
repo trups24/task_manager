@@ -37,7 +37,7 @@
               <option value="In Progress">In Progress</option>
               <option value="Waiting for Approval">Waiting for Approval</option>
               <option value="Completed">Completed</option>
-              <option value="Reverted">Reverted</option>
+              <option value="Sent Back">Sent Back</option>
             </select>
           </div>
           <button class="btn btn-primary-glass px-4" (click)="openCreateTaskModal()">
@@ -74,7 +74,7 @@
         <div class="stat-glass-card red">
           <div class="icon"><i class="bi bi-arrow-return-left"></i></div>
           <div class="value">{{ stats.revertedTasks }}</div>
-          <div class="label">Reverted Tasks</div>
+          <div class="label">Sent Back</div>
         </div>
       </div>
       <div class="col-6 col-md-4 col-xl-2">
@@ -143,7 +143,7 @@
                 <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">All Tasks</button>
                 <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Pending</button>
                 <button class="tab-btn" [class.active]="activeTab === 'approval'" (click)="setTab('approval')">Approvals</button>
-                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Reverted</button>
+                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Sent Back</button>
                 <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Completed</button>
               </div>
             </div>

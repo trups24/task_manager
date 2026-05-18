@@ -210,8 +210,12 @@ export class UserDashboardComponent implements OnInit {
 
   updateStatus(task: Task, status: string): void {
     this.taskService.updateStatus(task._id!, status).subscribe({
-      next: () => {
+      next: (updatedTask) => {
         this.toastr.success(`Status updated to ${status}`);
+        if (this.selectedTask?._id === updatedTask._id) {
+          this.selectedTask = updatedTask;
+          this.cdr.detectChanges();
+        }
         this.loadTasks();
       },
       error: () => this.toastr.error('Failed to update status')
@@ -219,14 +223,13 @@ export class UserDashboardComponent implements OnInit {
   }
 
   requestClarification(task: Task): void {
-    // Revert status to Reverted (this triggers backend reassignment to Admin)
-    this.taskService.updateStatus(task._id!, 'Reverted').subscribe({
+    this.taskService.updateStatus(task._id!, 'Sent Back').subscribe({
       next: () => {
-        this.toastr.info('Clarification requested. Task sent to Admin.');
+        this.toastr.info('Task sent back to the owner for guidance.');
         this.loadTasks();
         this.closeModal();
       },
-      error: () => this.toastr.error('Failed to request clarification')
+      error: () => this.toastr.error('Failed to send task back')
     });
   }
 
@@ -247,9 +250,8 @@ export class UserDashboardComponent implements OnInit {
     setInterval(() => {
       const now = new Date();
       this.tasks.forEach(task => {
-        if (task.reminderAt) {
+        if (task.reminderAt && !task.reminderFired) {
           const reminderDate = new Date(task.reminderAt);
-          // If reminder is within the next minute
           if (reminderDate > now && (reminderDate.getTime() - now.getTime()) < 60000) {
             this.toastr.info(`Reminder: ${task.title}`, 'Task Due Soon', { timeOut: 0 });
           }
@@ -267,7 +269,7 @@ export class UserDashboardComponent implements OnInit {
     switch (status) {
       case 'Pending': return 'bg-secondary';
       case 'In Progress': return 'bg-primary';
-      case 'Reverted': return 'bg-warning text-dark';
+      case 'Sent Back': return 'bg-warning text-dark';
       case 'Waiting for Approval': return 'bg-info';
       case 'Approved': return 'bg-success';
       case 'Done': return 'bg-success';

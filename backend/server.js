@@ -35,6 +35,10 @@ mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/taskmanag
 require('./models/User');
 require('./models/Task');
 
+// Start reminder scheduler
+const { startReminderScheduler } = require('./reminderScheduler');
+startReminderScheduler();
+
 // Import Routes
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');

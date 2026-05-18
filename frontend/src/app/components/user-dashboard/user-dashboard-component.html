@@ -96,8 +96,9 @@
           
           <div *ngIf="!filteredTasks.length" class="text-center py-5 w-100">
             <div class="opacity-50">
-              <i class="bi bi-clipboard-check fs-1"></i>
-              <p class="mt-2">No tasks in this category</p>
+              <i class="bi bi-inbox fs-1"></i>
+              <p class="mt-2 fw-semibold" *ngIf="!tasks.length">No tasks yet — your owner will assign tasks here.</p>
+              <p class="mt-2" *ngIf="tasks.length">No tasks match this filter.</p>
             </div>
           </div>
         </div>
@@ -152,8 +153,8 @@
               <button class="btn btn-success-glass w-100" *ngIf="selectedTask.status === 'In Progress'" (click)="updateStatus(selectedTask, 'Waiting for Approval')">
                 <i class="bi bi-check-lg me-1"></i>Submit for Approval
               </button>
-              <button class="btn btn-warning-glass w-100" (click)="requestClarification(selectedTask)">
-                <i class="bi bi-question-circle me-1"></i>Need Clarification
+              <button class="btn btn-warning-glass w-100" (click)="requestClarification(selectedTask)" title="Flag this task for the owner — they will be notified to provide guidance">
+                <i class="bi bi-question-circle me-1"></i>Ask Owner
               </button>
             </div>
 

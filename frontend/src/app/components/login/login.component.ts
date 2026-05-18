@@ -15,9 +15,7 @@ import { finalize } from 'rxjs/operators';
 })
 export class LoginComponent implements OnInit {
   loginForm: FormGroup;
-  registerForm: FormGroup;
   loading = false;
-  isLoginMode = true;
   returnUrl: string = '/';
 
   constructor(
@@ -31,34 +29,13 @@ export class LoginComponent implements OnInit {
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
-
-    this.registerForm = this.fb.group({
-      username: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', [Validators.required]]
-    }, { validator: this.passwordMatchValidator });
   }
 
   ngOnInit(): void {
-    // Get return url from route parameters or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
-    
-    // Check if already logged in
     if (this.authService.isAuthenticated()) {
-      setTimeout(() => {
-        this.redirectBasedOnRole();
-      });
+      setTimeout(() => this.redirectBasedOnRole());
     }
-  }
-
-  passwordMatchValidator(g: FormGroup) {
-    return g.get('password')?.value === g.get('confirmPassword')?.value
-      ? null : { mismatch: true };
-  }
-
-  toggleMode(): void {
-    this.isLoginMode = !this.isLoginMode;
   }
 
   onLoginSubmit(): void {
@@ -74,44 +51,14 @@ export class LoginComponent implements OnInit {
 
     this.loading = true;
     this.authService.login(this.loginForm.value).pipe(
-      finalize(() => setTimeout(() => this.loading = false))
+      finalize(() => { this.loading = false; })
     ).subscribe({
       next: () => {
         this.toastr.success('Login successful!');
-        setTimeout(() => {
-          this.redirectBasedOnRole();
-        });
+        setTimeout(() => this.redirectBasedOnRole());
       },
       error: (error) => {
         console.error('Login error:', error);
-        this.toastr.error(error.error?.message || 'Login failed. Please check your credentials.');
-      }
-    });
-  }
-
-  onRegisterSubmit(): void {
-    if (this.registerForm.invalid) {
-      Object.keys(this.registerForm.controls).forEach(key => {
-        const control = this.registerForm.get(key);
-        if (control?.invalid) {
-          control.markAsTouched();
-        }
-      });
-      return;
-    }
-
-    this.loading = true;
-    const { confirmPassword, ...registerData } = this.registerForm.value;
-    
-    this.authService.register(registerData).pipe(
-      finalize(() => setTimeout(() => this.loading = false))
-    ).subscribe({
-      next: () => {
-        this.toastr.success('Registration successful!');
-        this.redirectBasedOnRole();
-      },
-      error: (error) => {
-        this.toastr.error(error.error?.message || 'Registration failed.');
       }
     });
   }
@@ -139,7 +86,5 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  // Convenience getters for form controls
   get l() { return this.loginForm.controls; }
-  get r() { return this.registerForm.controls; }
 }

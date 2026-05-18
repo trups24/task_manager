@@ -23,7 +23,7 @@ export interface Task {
   title: string;
   description?: string;
   priority: 'low' | 'medium' | 'high';
-  status: 'Pending' | 'In Progress' | 'Reverted' | 'Waiting for Approval' | 'Approved' | 'Done' | 'Scheduled';
+  status: 'Pending' | 'In Progress' | 'Sent Back' | 'Waiting for Approval' | 'Approved' | 'Done' | 'Scheduled';
   createdBy: {
     _id: string;
     username: string;
@@ -39,6 +39,7 @@ export interface Task {
   dueAt?: Date | string;
   reminderAt?: Date | string;
   isReassignedToAdmin?: boolean;
+  reminderFired?: boolean;
   comments?: Comment[];
   history?: History[];
   createdAt: Date;

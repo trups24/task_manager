@@ -99,7 +99,7 @@ const updateTask = async (req, res) => {
       historyEntry.details = `Status changed from ${task.status} to ${updates.status}`;
       
       // Step 4 logic: Clarification needed
-      if (updates.status === 'Reverted' && !isAdmin) {
+      if (updates.status === 'Sent Back' && !isAdmin) {
         updates.isReassignedToAdmin = true;
         historyEntry.details += ' (Reassigned to Admin for clarification)';
       }

@@ -22,7 +22,7 @@ const taskSchema = new mongoose.Schema({
     enum: [
       'Pending',
       'In Progress',
-      'Reverted',
+      'Sent Back',
       'Waiting for Approval',
       'Approved',
       'Done',
@@ -44,6 +44,10 @@ const taskSchema = new mongoose.Schema({
   },
   reminderAt: {
     type: Date
+  },
+  reminderFired: {
+    type: Boolean,
+    default: false
   },
   isReassignedToAdmin: {
     type: Boolean,

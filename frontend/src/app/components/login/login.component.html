@@ -2,20 +2,12 @@
   <div class="login-card-glass">
     <div class="login-header-glass">
       <i class="bi bi-kanban-fill" style="font-size: 3rem; color: #6366f1; margin-bottom: 1rem; display: block;"></i>
-      <h2>{{ isLoginMode ? 'Welcome Back' : 'Create Account' }}</h2>
-      <p class="text-muted">{{ isLoginMode ? 'Sign in to manage your tasks' : 'Join us to start managing tasks' }}</p>
+      <h2>Welcome Back</h2>
+      <p class="text-muted">Sign in to manage your tasks</p>
     </div>
 
     <div class="login-body">
-      <form [formGroup]="isLoginMode ? loginForm : registerForm" (ngSubmit)="isLoginMode ? onLoginSubmit() : onRegisterSubmit()">
-        <div class="mb-3" *ngIf="!isLoginMode">
-          <label class="form-label fw-bold small text-uppercase">Username</label>
-          <div class="input-group">
-            <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-person"></i></span>
-            <input type="text" class="form-control glass-form-control" formControlName="username" placeholder="Choose a username">
-          </div>
-        </div>
-
+      <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
         <div class="mb-3">
           <label class="form-label fw-bold small text-uppercase">Email Address</label>
           <div class="input-group">
@@ -32,27 +24,10 @@
           </div>
         </div>
 
-        <div class="mb-4" *ngIf="!isLoginMode">
-          <label class="form-label fw-bold small text-uppercase">Confirm Password</label>
-          <div class="input-group">
-            <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-shield-check"></i></span>
-            <input type="password" class="form-control glass-form-control" formControlName="confirmPassword" placeholder="••••••••">
-          </div>
-        </div>
-
         <button type="submit" class="btn-login-glass" [disabled]="loading">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-          {{ isLoginMode ? 'Sign In' : 'Register' }}
+          Sign In
         </button>
-
-        <div class="text-center mt-4">
-          <p class="text-muted small mb-0">
-            {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
-            <button type="button" class="btn btn-link p-0 fw-bold" style="color: #6366f1; text-decoration: none;" (click)="toggleMode()">
-              {{ isLoginMode ? 'Register Now' : 'Sign In' }}
-            </button>
-          </p>
-        </div>
       </form>
     </div>
   </div>
