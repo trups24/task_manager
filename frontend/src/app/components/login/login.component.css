@@ -1,0 +1,81 @@
+/* Login Component - Glassmorphism Refactoring */
+.login-container {
+  min-height: 100vh;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.login-card-glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 24px;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 450px;
+  overflow: hidden;
+  animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.login-header-glass {
+  padding: 3rem 2rem 2rem;
+  text-align: center;
+}
+
+.login-header-glass h2 {
+  font-weight: 800;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+  font-size: 2rem;
+}
+
+.login-body {
+  padding: 0 2.5rem 3rem;
+}
+
+.glass-form-control {
+  background: rgba(255, 255, 255, 0.5) !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  border-radius: 12px !important;
+  padding: 12px 1rem !important;
+  transition: var(--transition) !important;
+}
+
+.glass-form-control:focus {
+  background: white !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+}
+
+.btn-login-glass {
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-weight: 700;
+  width: 100%;
+  margin-top: 1rem;
+  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+  transition: var(--transition);
+}
+
+.btn-login-glass:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+}
+
+.btn-login-glass:active {
+  transform: translateY(0);
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}

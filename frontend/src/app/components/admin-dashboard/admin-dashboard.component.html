@@ -1,0 +1,386 @@
+<div class="dashboard-wrapper">
+  <!-- Sidebar-like Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark glass-nav pt-4 pb-3">
+    <div class="container-fluid px-4">
+      <a class="navbar-brand animate-fade-in d-flex align-items-center ms-2" href="#">
+        <div class="logo-icon me-3">
+          <i class="bi bi-kanban-fill"></i>
+        </div>
+        <span class="fw-bold tracking-tight">Workflow Tracking</span>
+      </a>
+      <div class="navbar-nav ms-auto align-items-center">
+        <span class="navbar-text me-4 d-none d-md-inline">
+          <img src="https://ui-avatars.com/api/?name={{ (authService.getCurrentUser())?.username }}&background=random" class="rounded-circle me-2" width="30">
+          Welcome, <strong>{{ (authService.getCurrentUser())?.username }}</strong>
+        </span>
+        <button class="logout-btn btn-sm border-0" (click)="logout()">
+          <i class="bi bi-box-arrow-right"></i>
+          <span>Logout</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid py-4 content-area">
+    <!-- Search & Filter Row (New Position) -->
+    <div class="row mb-4 animate-slide-up">
+      <div class="col-md-12">
+        <div class="glass-card p-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+          <div class="d-flex align-items-center gap-3 flex-grow-1" style="max-width: 600px;">
+            <div class="search-box flex-grow-1">
+              <i class="bi bi-search"></i>
+              <input type="text" class="form-control" placeholder="Search tasks, descriptions or employees..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+            </div>
+            <select class="form-select glass-input border-0 shadow-sm" style="width: auto; min-width: 150px;" [(ngModel)]="filterStatus" (change)="applyFilters()">
+              <option value="all">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="In Progress">In Progress</option>
+              <option value="Waiting for Approval">Waiting for Approval</option>
+              <option value="Completed">Completed</option>
+              <option value="Reverted">Reverted</option>
+            </select>
+          </div>
+          <button class="btn btn-primary-glass px-4" (click)="openCreateTaskModal()">
+            <i class="bi bi-plus-lg me-2"></i>New Task
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row g-4 mb-5 animate-slide-up">
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card purple">
+          <div class="icon"><i class="bi bi-people"></i></div>
+          <div class="value">{{ stats.totalUsers }}</div>
+          <div class="label">Total Users</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card blue">
+          <div class="icon"><i class="bi bi-journal-text"></i></div>
+          <div class="value">{{ stats.totalTasks }}</div>
+          <div class="label">Total Tasks</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card orange">
+          <div class="icon"><i class="bi bi-hourglass-split"></i></div>
+          <div class="value">{{ stats.pendingApprovals }}</div>
+          <div class="label">Pending Approvals</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card red">
+          <div class="icon"><i class="bi bi-arrow-return-left"></i></div>
+          <div class="value">{{ stats.revertedTasks }}</div>
+          <div class="label">Reverted Tasks</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card yellow">
+          <div class="icon"><i class="bi bi-exclamation-triangle"></i></div>
+          <div class="value">{{ stats.overdueTasks }}</div>
+          <div class="label">Overdue Tasks</div>
+        </div>
+      </div>
+      <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-glass-card green">
+          <div class="icon"><i class="bi bi-check2-circle"></i></div>
+          <div class="value">{{ stats.completedTasks }}</div>
+          <div class="label">Completed</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Users Management -->
+      <div class="col-lg-4 animate-slide-left">
+        <div class="glass-card h-100">
+          <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+            <h6 class="mb-0 fw-bold text-uppercase letter-spacing-1"><i class="bi bi-people-fill me-2 text-primary"></i>Team Members</h6>
+            <button class="btn btn-primary-glass btn-sm rounded-pill px-3" (click)="openCreateUserModal()">
+              <i class="bi bi-person-plus-fill me-1"></i>Add Member
+            </button>
+          </div>
+          <div class="card-body p-0">
+            <div class="user-list scroll-custom">
+              <div class="user-item" *ngFor="let user of users" [class.active]="selectedUser?._id === user._id">
+                <div class="d-flex align-items-center w-100">
+                  <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" class="rounded-circle me-3" width="40">
+                  <div class="flex-grow-1">
+                    <div class="name">{{ user.username }}</div>
+                    <div class="email">{{ user.email }}</div>
+                  </div>
+                  <div class="actions">
+                    <button class="btn btn-icon text-info" (click)="openEditUserModal(user)"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-icon text-primary" (click)="viewEmployeeTasks(user)"><i class="bi bi-eye"></i></button>
+                    <button class="btn btn-icon text-danger" (click)="deleteUser(user._id!)" *ngIf="user.role !== 'admin'"><i class="bi bi-trash"></i></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Management -->
+      <div class="col-lg-8 animate-slide-right">
+        <div class="glass-card">
+          <div class="card-header-glass pt-4 ps-4">
+            <div class="d-flex align-items-center">
+              <h5 class="mb-0"><i class="bi bi-layout-text-sidebar-reverse me-2"></i>Workflow Tracking</h5>
+              <span *ngIf="selectedUser" class="badge bg-primary ms-3 glass-badge">
+                Filtering: {{ selectedUser.username }} 
+                <i class="bi bi-x-circle ms-1 cursor-pointer" (click)="clearUserFilter()"></i>
+              </span>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Tabs Row -->
+            <div class="filter-row mb-4">
+              <div class="tabs-scroll scroll-custom">
+                <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">All Tasks</button>
+                <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Pending</button>
+                <button class="tab-btn" [class.active]="activeTab === 'approval'" (click)="setTab('approval')">Approvals</button>
+                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Reverted</button>
+                <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Completed</button>
+              </div>
+            </div>
+
+            <!-- Tasks Table -->
+            <div class="table-responsive scroll-custom">
+              <table class="table glass-table">
+                <thead>
+                  <tr>
+                    <th>Task Details</th>
+                    <th>Assigned To</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Deadline</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let task of filteredTasks">
+                    <td>
+                      <div class="task-title">{{ task.title }}</div>
+                      <div class="task-desc-short">{{ task.description | slice:0:40 }}{{ task.description && task.description.length > 40 ? '...' : '' }}</div>
+                    </td>
+                    <td>
+                      <div class="d-flex align-items-center" *ngIf="task.assignedTo">
+                        <img src="https://ui-avatars.com/api/?name={{ task.assignedTo.username }}&background=random" class="rounded-circle me-2" width="24">
+                        <span>{{ task.assignedTo.username }}</span>
+                      </div>
+                      <span class="text-muted" *ngIf="!task.assignedTo">Unassigned</span>
+                    </td>
+                    <td>
+                      <span class="priority-dot" [ngClass]="task.priority"></span>
+                      {{ task.priority | titlecase }}
+                    </td>
+                    <td>
+                      <span class="badge status-badge-glass" [ngClass]="getStatusClass(task.status)">
+                        {{ task.status }}
+                      </span>
+                    </td>
+                    <td>
+                      <div class="date-cell" [class.overdue]="task.status !== 'Approved' && task.dueAt && (task.dueAt.toString() < today.toISOString())">
+                        {{ task.dueAt ? (task.dueAt | date:'MMM d, h:mm a') : 'No date' }}
+                      </div>
+                    </td>
+                    <td>
+                      <div class="btn-group">
+                        <button class="btn btn-table-icon text-info" (click)="openDetailModal(task)"><i class="bi bi-chat-left-text"></i></button>
+                        <button class="btn btn-table-icon text-primary" (click)="openEditTaskModal(task)"><i class="bi bi-pencil"></i></button>
+                        <button class="btn btn-table-icon text-danger" (click)="deleteTask(task._id!)"><i class="bi bi-trash3"></i></button>
+                        <button class="btn btn-table-icon text-success" *ngIf="task.status === 'Waiting for Approval'" (click)="approveTask(task)"><i class="bi bi-check-circle"></i></button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="!filteredTasks.length">
+                    <td colspan="6" class="text-center py-5">
+                      <i class="bi bi-inbox fs-1 d-block mb-2 text-muted opacity-50"></i>
+                      No tasks matching filters
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Task Modal (Comments & History) -->
+<div class="modal glass-modal show" *ngIf="showDetailModal && selectedTask">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Task: {{ selectedTask.title }}</h5>
+        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body scroll-custom" style="max-height: 80vh;">
+        <div class="row">
+          <div class="col-md-7">
+            <h6><i class="bi bi-justify-left me-2"></i>Description</h6>
+            <p class="text-muted bg-light p-3 rounded">{{ selectedTask.description || 'No description provided.' }}</p>
+            
+            <hr>
+            
+            <h6 class="mb-3"><i class="bi bi-chat-dots me-2"></i>Communication Thread</h6>
+            <div class="comment-section scroll-custom mb-3">
+              <div class="comment-item" *ngFor="let comment of selectedTask.comments">
+                <div class="d-flex mb-2">
+                  <img src="https://ui-avatars.com/api/?name={{ comment.user.username }}&background=random" class="rounded-circle me-2" width="30">
+                  <div class="comment-bubble">
+                    <div class="user">{{ comment.user.username }} <span class="badge bg-secondary ms-1">{{ comment.user.role }}</span></div>
+                    <div class="text">{{ comment.text }}</div>
+                    <div class="time">{{ comment.createdAt | date:'short' }}</div>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="!selectedTask.comments?.length" class="text-center text-muted py-3">No comments yet.</div>
+            </div>
+            
+            <form [formGroup]="commentForm" (ngSubmit)="addComment()" class="comment-input-area">
+              <input type="text" formControlName="text" class="form-control" placeholder="Add a comment or clarification...">
+              <button type="submit" class="btn btn-primary btn-sm" [disabled]="commentForm.invalid">
+                <i class="bi bi-send"></i>
+              </button>
+            </form>
+          </div>
+          
+          <div class="col-md-5">
+            <h6 class="mb-3"><i class="bi bi-clock-history me-2"></i>Audit Log</h6>
+            <div class="history-list scroll-custom">
+              <div class="history-item" *ngFor="let log of selectedTask.history">
+                <div class="dot"></div>
+                <div class="history-content">
+                  <div class="action">{{ log.action }}</div>
+                  <div class="details">{{ log.details }}</div>
+                  <div class="time">{{ log.timestamp | date:'short' }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Task Form Modal -->
+<div class="modal glass-modal show" *ngIf="showTaskModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ editingTask ? 'Edit Task' : 'Assign New Task' }}</h5>
+        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="taskForm">
+          <div class="mb-3">
+            <label class="form-label">Task Title</label>
+            <input type="text" class="form-control glass-input" formControlName="title" placeholder="e.g. Add purchase order for XYZ">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control glass-input" formControlName="description" rows="3"></textarea>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label">Priority</label>
+              <select class="form-select glass-input" formControlName="priority">
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label">Status</label>
+              <select class="form-select glass-input" formControlName="status">
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Waiting for Approval">Waiting for Approval</option>
+                <option value="Done">Done</option>
+                <option value="Scheduled">Scheduled</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Assign To</label>
+            <select class="form-select glass-input" formControlName="assignedTo">
+              <option [ngValue]="null">Select Employee</option>
+              <option *ngFor="let user of users" [ngValue]="user._id">{{ user.username }} ({{ user.role }})</option>
+            </select>
+          </div>
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label">Due Date</label>
+              <input type="datetime-local" class="form-control glass-input" formControlName="dueAt">
+            </div>
+            <div class="col-6">
+              <label class="form-label">Reminder Date</label>
+              <input type="datetime-local" class="form-control glass-input" formControlName="reminderAt">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light-glass btn-sm" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary-glass btn-sm" (click)="saveTask()" [disabled]="isTaskSubmitting">
+          {{ isTaskSubmitting ? 'Processing...' : (editingTask ? 'Update Task' : 'Assign Task') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- User Modal -->
+<div class="modal glass-modal show" *ngIf="showUserModal">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ editingUser ? 'Edit Profile' : 'Add Member' }}</h5>
+        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="userForm">
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input type="text" class="form-control glass-input" formControlName="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control glass-input" formControlName="email">
+          </div>
+          <div class="mb-3" *ngIf="!editingUser">
+            <label class="form-label">Initial Password</label>
+            <input type="password" class="form-control glass-input" formControlName="password">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Role</label>
+            <select class="form-select glass-input" formControlName="role">
+              <option value="user">Employee / User</option>
+              <option value="admin">Admin / Boss</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light-glass btn-sm" (click)="closeModal()">Cancel</button>
+        <button type="button" class="btn btn-primary-glass btn-sm" (click)="saveUser()" [disabled]="isUserSubmitting">
+          {{ isUserSubmitting ? 'Saving...' : 'Save Member' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
