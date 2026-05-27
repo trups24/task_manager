@@ -32,6 +32,11 @@ export class UserDashboardComponent implements OnInit {
   searchTerm: string = '';
   activeTab: string = 'pending'; // Default tab
 
+  // Personal todo list properties
+  personalTodos: Array<{ id: string; text: string; completed: boolean; priority: string; createdAt: Date }> = [];
+  newTodoText: string = '';
+  newTodoPriority: string = 'medium';
+
   stats = {
     total: 0,
     pending: 0,
@@ -67,6 +72,7 @@ export class UserDashboardComponent implements OnInit {
     this.loadTasks();
     this.loadUsers();
     this.startReminderCheck();
+    this.loadPersonalTodos();
   }
 
   loadUsers(): void {
@@ -92,7 +98,7 @@ export class UserDashboardComponent implements OnInit {
 
   calculateStats(): void {
     this.stats.total = this.tasks.length;
-    this.stats.pending = this.tasks.filter(t => t.status === 'Pending').length;
+    this.stats.pending = this.tasks.filter(t => t.status === 'Pending' || t.status === 'Reverted').length;
     this.stats.inProgress = this.tasks.filter(t => t.status === 'In Progress').length;
     this.stats.completed = this.tasks.filter(t => t.status === 'Approved' || t.status === 'Done').length;
     this.stats.reminders = this.tasks.filter(t => t.reminderAt && new Date(t.reminderAt) > new Date()).length;
@@ -109,10 +115,9 @@ export class UserDashboardComponent implements OnInit {
                        (task.description?.toLowerCase().includes(search) ?? false);
       }
 
-      if (this.activeTab === 'pending') matchesTab = task.status === 'Pending';
+      if (this.activeTab === 'pending') matchesTab = task.status === 'Pending' || task.status === 'Reverted';
       else if (this.activeTab === 'in-progress') matchesTab = task.status === 'In Progress';
       else if (this.activeTab === 'completed') matchesTab = task.status === 'Approved' || task.status === 'Done';
-      else if (this.activeTab === 'approval') matchesTab = task.status === 'Waiting for Approval';
       else if (this.activeTab === 'scheduled') matchesTab = task.status === 'Scheduled' || (task.reminderAt != null);
 
       return matchesSearch && matchesTab;
@@ -121,7 +126,11 @@ export class UserDashboardComponent implements OnInit {
 
   setTab(tab: string): void {
     this.activeTab = tab;
-    this.applyFilters();
+    if (tab === 'personal') {
+      this.loadPersonalTodos();
+    } else {
+      this.applyFilters();
+    }
   }
 
   openDetailModal(task: Task): void {
@@ -268,11 +277,54 @@ export class UserDashboardComponent implements OnInit {
       case 'Pending': return 'bg-secondary';
       case 'In Progress': return 'bg-primary';
       case 'Reverted': return 'bg-warning text-dark';
-      case 'Waiting for Approval': return 'bg-info';
       case 'Approved': return 'bg-success';
       case 'Done': return 'bg-success';
       case 'Scheduled': return 'bg-dark';
       default: return 'bg-light text-dark';
     }
+  }
+
+  loadPersonalTodos(): void {
+    const user = this.authService.getCurrentUser();
+    if (user && user._id) {
+      const key = `personal_todos_${user._id}`;
+      const saved = localStorage.getItem(key);
+      this.personalTodos = saved ? JSON.parse(saved) : [];
+    }
+  }
+
+  savePersonalTodos(): void {
+    const user = this.authService.getCurrentUser();
+    if (user && user._id) {
+      const key = `personal_todos_${user._id}`;
+      localStorage.setItem(key, JSON.stringify(this.personalTodos));
+    }
+  }
+
+  addPersonalTodo(): void {
+    if (!this.newTodoText || !this.newTodoText.trim()) return;
+    const newTodo = {
+      id: '_' + Math.random().toString(36).substr(2, 9),
+      text: this.newTodoText.trim(),
+      completed: false,
+      priority: this.newTodoPriority,
+      createdAt: new Date()
+    };
+    this.personalTodos.push(newTodo);
+    this.savePersonalTodos();
+    this.newTodoText = '';
+    this.newTodoPriority = 'medium';
+    this.toastr.success('Personal todo added successfully');
+  }
+
+  togglePersonalTodo(todo: any): void {
+    todo.completed = !todo.completed;
+    this.savePersonalTodos();
+  }
+
+  deletePersonalTodo(id: string): void {
+    this.personalTodos = this.personalTodos.filter(t => t.id !== id);
+    this.savePersonalTodos();
+    this.toastr.success('Personal todo deleted');
   }
 }
